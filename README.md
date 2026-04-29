@@ -1,151 +1,42 @@
-﻿# Atividade Prática - Pipeline RAG com ChromaDB
+﻿# Consulta RAG de Documentos PDF
 
-Este projeto implementa uma aplicação RAG básica para consulta da Resolução nº 001/2024 - CONEPE, que institui a Normatização Acadêmica da Universidade do Estado de Mato Grosso Carlos Alberto Reyes Maldonado - UNEMAT.
+Aplicação acadêmica em Python/Streamlit que implementa um pipeline RAG para consultar documentos PDF com respostas fundamentadas em trechos recuperados semanticamente.
 
-## Documento utilizado
-
-O documento escolhido para indexação foi:
-
-- `Res 001-2024-CONEPE - Normatização Acadêmica.pdf`
-
-Esse documento foi escolhido por ter estrutura normativa clara, com títulos, capítulos, artigos, parágrafos e incisos. Essa organização favorece uma estratégia de chunking estrutural, pois cada trecho possui uma unidade semântica bem definida.
+O projeto foi desenvolvido para a atividade prática da Aula 07 - Introdução ao RAG. O documento usado nos testes da atividade foi a `Res 001-2024-CONEPE - Normatização Acadêmica.pdf`, mas a interface aceita o upload de outros PDFs.
 
 ## Objetivo
 
-Criar um pipeline RAG básico capaz de:
+Implementar um pipeline RAG básico capaz de:
 
-1. Carregar o documento PDF.
-2. Dividir o texto em chunks adequados.
-3. Gerar embeddings dos chunks.
-4. Armazenar os embeddings no ChromaDB.
-5. Receber uma pergunta do usuário.
-6. Buscar os trechos mais relevantes por similaridade semântica.
-7. Gerar uma resposta fundamentada no contexto recuperado.
-8. Citar as fontes utilizadas na resposta.
+1. Receber um PDF pela interface.
+2. Extrair e limpar o texto do documento.
+3. Dividir o conteúdo em chunks.
+4. Gerar embeddings dos chunks.
+5. Armazenar texto, embeddings e metadados no ChromaDB.
+6. Receber uma pergunta do usuário.
+7. Recuperar chunks relevantes por busca semântica.
+8. Selecionar automaticamente os melhores chunks para contexto.
+9. Gerar uma resposta usando apenas o contexto recuperado.
+10. Exibir as fontes utilizadas com artigo, capítulo, título e página.
 
-## Tecnologias escolhidas
+## Tecnologias
 
-### Backend
+- **Python**: linguagem principal do projeto.
+- **Streamlit**: interface web.
+- **PyMuPDF**: extração de texto do PDF.
+- **ChromaDB**: banco vetorial persistido em disco.
+- **Gemini Embedding** (`gemini-embedding-001`): geração dos embeddings.
+- **GroqCloud** (`llama-3.3-70b-versatile`): geração das respostas.
+- **python-dotenv**: carregamento das chaves de API a partir do `.env`.
 
-O backend será desenvolvido em **Python**, seguindo a mesma linguagem usada nos exemplos da aula.
-
-O backend será responsável por:
-
-- carregar e extrair o texto do PDF;
-- limpar cabeçalhos e rodapés;
-- aplicar o chunking por artigos;
-- gerar embeddings;
-- armazenar os dados no ChromaDB;
-- recuperar os chunks relevantes;
-- chamar o modelo gerador para produzir a resposta final.
-
-Essa escolha mantém o projeto simples e alinhado ao conteúdo apresentado pelo professor.
-
-### Frontend
-
-O frontend será desenvolvido com **Streamlit**.
-
-Motivos:
-
-- Usa Python, evitando a necessidade de HTML, CSS e JavaScript manual.
-- Permite criar uma interface web simples e funcional rapidamente.
-- É adequado para demonstrações acadêmicas e protótipos de IA.
-- Integra diretamente com o backend Python.
-- Facilita criar uma tela com campo de pergunta, botão de consulta, resposta e fontes.
-
-A interface terá uma estrutura simples:
-
-```text
-Título da aplicação
-Botão para indexar o documento
-Campo para digitar a pergunta
-Botão para consultar
-Área de resposta
-Lista de fontes recuperadas
-```
-
-Exemplo de uso esperado:
-
-```text
-Pergunta:
-O que acontece se o estudante perder o prazo de renovação de matrícula?
-
-Resposta:
-O estudante poderá recorrer ao Colegiado de Curso mediante justificativa, no prazo máximo de até 10 dias após o encerramento do último período de matrícula.
-
-Fontes:
-- Art. 35, Capítulo III - Da Renovação da Matrícula, página 8.
-```
-
-### Banco vetorial
-
-O banco vetorial escolhido foi o **ChromaDB**.
-
-Motivos:
-
-- É gratuito e simples de usar localmente.
-- Atende diretamente ao requisito da atividade.
-- Permite persistir coleções em disco.
-- Armazena texto, embeddings e metadados no mesmo fluxo.
-- É adequado para projetos pequenos e demonstrações acadêmicas de RAG.
-
-### Modelo de embeddings
-
-Para gerar embeddings, a escolha recomendada é usar a API do **Gemini Embedding**, especialmente:
-
-- `gemini-embedding-001`.
-
-Também existe a opção:
-
-- `gemini-embedding-2`.
-
-Motivos:
-
-- Possui camada gratuita para uso experimental.
-- Funciona bem com busca semântica.
-- Suporta português.
-- Evita depender de uma API paga da OpenAI para a etapa de embeddings.
-
-Para este projeto, a recomendação principal é usar **`gemini-embedding-001`**, pois a aplicação trabalha com RAG textual e não precisa de recursos multimodais.
-
-Os embeddings são usados para transformar cada chunk textual em um vetor numérico. Esses vetores são armazenados no ChromaDB e comparados com o vetor da pergunta do usuário durante a busca semântica.
-
-### Modelo gerador de resposta
-
-Para a geração da resposta final, a escolha recomendada é usar a **GroqCloud** com o modelo:
-
-- `llama-3.3-70b-versatile`.
-
-Motivos:
-
-- Possui free tier adequado para testes e demonstrações.
-- Costuma oferecer bons limites gratuitos para chamadas de chat.
-- Tem baixa latência.
-- Funciona bem para gerar respostas em português quando recebe um prompt claro.
-
-Também é possível usar:
-
-- **Gemini Flash**, usando a mesma plataforma dos embeddings.
-
-No entanto, para maximizar o uso gratuito, a recomendação final é:
-
-```text
-Embeddings: gemini-embedding-001
-Geração: GroqCloud com llama-3.3-70b-versatile
-```
-
-Assim, o Gemini fica responsável pela criação dos vetores semânticos e a GroqCloud fica responsável pela resposta textual final.
-
-## Estrutura prevista do projeto
-
-A estrutura sugerida para o projeto é:
+## Estrutura do projeto
 
 ```text
 .
 |-- app.py
 |-- rag.py
 |-- requirements.txt
-|-- .env
+|-- .env.example
 |-- README.md
 |-- chroma_db/
 |-- uploaded_docs/
@@ -153,253 +44,208 @@ A estrutura sugerida para o projeto é:
 `-- Res 001-2024-CONEPE - Normatização Acadêmica.pdf
 ```
 
-Descrição dos arquivos:
+Descrição dos principais arquivos e pastas:
 
-- `app.py`: interface web feita com Streamlit.
-- `rag.py`: lógica principal do pipeline RAG.
+- `app.py`: interface Streamlit.
+- `rag.py`: extração, chunking, embeddings, recuperação e geração da resposta.
 - `requirements.txt`: dependências do projeto.
-- `.env`: chaves de API do Gemini e da GroqCloud.
-- `chroma_db/`: pasta onde o ChromaDB persistirá os embeddings.
-- `uploaded_docs/`: pasta local onde a interface salva o PDF carregado pelo usuário.
-- `README.md`: documentação do projeto.
+- `.env.example`: exemplo das variáveis de ambiente necessárias.
+- `chroma_db/`: arquivos internos do ChromaDB.
+- `uploaded_docs/`: PDFs enviados e salvos no servidor da aplicação.
+- `debug_chunks.csv`: arquivo opcional gerado para inspecionar os chunks.
 
-## Separação entre frontend e backend
+## Como Funciona
 
-Mesmo usando Streamlit, o projeto será organizado separando a interface da lógica de RAG.
+O fluxo principal da aplicação é:
 
-O arquivo `app.py` cuidará apenas da interface:
+1. O usuário carrega um PDF na seção **Documento**.
+2. O PDF é salvo em `uploaded_docs/`.
+3. O usuário clica em **Processar documento**.
+4. O app extrai o texto do PDF com PyMuPDF.
+5. O texto é limpo para remover cabeçalhos, rodapés e linhas repetidas.
+6. O conteúdo é dividido em chunks.
+7. Os embeddings são gerados com Gemini.
+8. Os chunks, embeddings e metadados são salvos no ChromaDB.
+9. O usuário envia uma pergunta.
+10. A pergunta é convertida em embedding.
+11. O ChromaDB recupera chunks candidatos por similaridade vetorial.
+12. O app filtra automaticamente os chunks mais relevantes.
+13. O modelo gerador recebe a pergunta e os chunks selecionados.
+14. A resposta é exibida junto com as fontes.
 
-- exibir título;
-- mostrar botões;
-- receber o upload do PDF;
-- receber a pergunta;
-- chamar funções do backend;
-- apresentar resposta e fontes.
+## Interface
 
-O arquivo `rag.py` cuidará da lógica:
+A interface é dividida em:
 
-- extração do PDF;
-- chunking;
-- embeddings;
-- ChromaDB;
-- recuperação semântica;
-- geração da resposta.
+- **Documento**: upload de PDF e botão **Processar documento**.
+- **Documento processado**: mostra o documento ativo e a quantidade de trechos disponíveis.
+- **Arquivos enviados**: lista os PDFs salvos no servidor da aplicação.
+- **Pergunta**: campo principal para consultar o documento processado.
+- **Resposta**: resposta gerada pelo modelo.
+- **Trechos usados para responder**: chunks selecionados automaticamente para fundamentar a resposta.
+- **Dados técnicos**: detalhes do ChromaDB, modelos usados, parâmetros da recuperação e distâncias vetoriais.
 
-Essa separação deixa o projeto mais organizado e facilita explicar ao professor onde está cada parte da aplicação.
+### Arquivos enviados vs documento processado
 
-## Estratégia de chunking
+O projeto separa duas coisas:
 
-A estratégia escolhida é:
+- **Arquivos enviados**: PDFs salvos em `uploaded_docs/`, no servidor da aplicação.
+- **Documento processado**: chunks e embeddings salvos no ChromaDB.
 
-> Chunking por seções aplicado a documento normativo, usando artigos como unidade semântica principal.
+Isso permite limpar o processamento sem apagar o PDF enviado. Depois de limpar o processamento, é possível reprocessar um PDF já salvo usando **Processar arquivo salvo**.
 
-De acordo com a classificação apresentada na aula, essa estratégia se encaixa em **chunking por seções**, pois utiliza marcadores estruturais do documento, como:
+Botões principais:
 
-- `TÍTULO`
-- `Capítulo`
-- `Art.`
-- parágrafos
-- incisos
+- **Processar documento**: processa o PDF recém-carregado.
+- **Limpar processamento**: remove os chunks/embeddings ativos do ChromaDB.
+- **Processar arquivo salvo**: reprocessa um PDF já existente em `uploaded_docs/`.
+- **Remover arquivos enviados**: apaga os PDFs salvos em `uploaded_docs/`.
 
-No entanto, em vez de criar um chunk para cada título ou capítulo inteiro, a unidade principal será o **artigo**.
+## Estratégia de Chunking
 
-## Justificativa do chunking por artigo
+Para o documento da atividade, a estratégia usada é chunking estrutural por artigos.
 
-Usar títulos ou capítulos inteiros como chunks deixaria os blocos muito grandes e misturaria assuntos diferentes. Isso poderia prejudicar a busca semântica, porque uma pergunta específica sobre matrícula, frequência ou avaliação poderia recuperar um bloco amplo demais.
+A resolução possui uma estrutura normativa com:
 
-Por outro lado, usar apenas parágrafos ou sentenças poderia fragmentar demais o conteúdo e separar incisos, parágrafos e complementos que fazem parte do mesmo artigo.
+- títulos;
+- capítulos;
+- artigos;
+- parágrafos;
+- incisos.
 
-Por isso, a melhor unidade para este documento é:
+Por isso, a unidade principal escolhida foi:
 
 ```text
 1 chunk = 1 artigo completo
 ```
 
-Cada artigo deve carregar junto seus parágrafos, incisos e complementos até o início do próximo artigo.
+Essa escolha evita chunks grandes demais, como capítulos inteiros, e também evita fragmentar excessivamente o texto em sentenças isoladas.
 
-## Metadados dos chunks
-
-Cada chunk deve ser armazenado no ChromaDB com metadados que permitam rastrear sua origem.
-
-Exemplo:
+Cada chunk recebe metadados:
 
 ```json
 {
   "fonte": "Res 001-2024-CONEPE - Normatização Acadêmica.pdf",
-  "pagina_inicio": 8,
-  "pagina_fim": 8,
+  "artigo": "Art. 35",
   "titulo": "TÍTULO V - DA VIDA ACADÊMICA",
   "capitulo": "Capítulo III - Da Renovação da Matrícula",
-  "artigo": "Art. 35"
+  "pagina_inicio": 8,
+  "pagina_fim": 8
 }
 ```
 
-Esses metadados serão usados para exibir as citações na resposta final.
+Esses metadados são usados na exibição das fontes e também no contexto enviado para geração da resposta.
 
-## Formato recomendado do texto indexado
+## Seleção Automática de Contexto
 
-O texto enviado para embedding deve conter o conteúdo do artigo e também seu contexto hierárquico.
+Após a busca vetorial, o app não envia todos os chunks recuperados ao modelo gerador. Ele faz uma seleção automática.
 
-Exemplo:
-
-```text
-Fonte: Res 001-2024-CONEPE - Normatização Acadêmica.pdf
-TÍTULO V - DA VIDA ACADÊMICA
-Capítulo III - Da Renovação da Matrícula
-Página: 8
-
-Art. 35 O estudante que perder o prazo de Renovação de Matrícula poderá recorrer ao Colegiado de Curso...
-```
-
-Esse formato melhora a recuperação porque o embedding passa a representar não apenas o artigo isolado, mas também o assunto institucional ao qual ele pertence.
-
-## Fluxo do pipeline RAG
-
-O pipeline da aplicação será:
-
-1. Carregar o PDF pela interface Streamlit.
-2. Salvar o PDF carregado na pasta local `uploaded_docs/`.
-3. Extrair o texto do PDF com `PyMuPDF`.
-4. Limpar cabeçalhos, rodapés e numeração de página.
-5. Identificar marcadores estruturais do documento.
-6. Separar o texto em chunks por artigo.
-7. Associar cada chunk aos metadados de título, capítulo, artigo e página.
-8. Gerar embeddings com Gemini Embedding.
-9. Armazenar texto, embeddings e metadados no ChromaDB.
-10. Ao receber uma pergunta, gerar embedding da pergunta.
-11. Buscar no ChromaDB os chunks mais similares.
-12. Enviar pergunta e chunks recuperados ao modelo gerador.
-13. Gerar resposta usando apenas o contexto recuperado.
-14. Apresentar resposta com citação das fontes.
-15. Exibir tudo em uma interface Streamlit.
-
-## Fluxo da interface
-
-O fluxo de uso da aplicação será:
-
-1. O usuário abre a aplicação Streamlit.
-2. O usuário carrega o documento PDF pela interface.
-3. O usuário clica em **Processar e indexar PDF**.
-4. A aplicação divide o PDF em chunks, gera embeddings e salva os dados no ChromaDB.
-5. O usuário digita uma pergunta sobre a Resolução CONEPE.
-6. A aplicação busca os chunks mais relevantes.
-7. A aplicação gera uma resposta fundamentada.
-8. A interface exibe a resposta e as fontes usadas.
-
-A consulta só é liberada depois que o PDF é processado e indexado na sessão atual. O ChromaDB persiste dados em disco na pasta `chroma_db/`, mas a interface exige o processamento explícito do PDF para deixar claro o fluxo pedido na atividade.
-
-A interface também mostra quantos chunks estão armazenados no ChromaDB. Caso exista um índice antigo, o usuário pode clicar em **Limpar índice ChromaDB** antes de processar outro PDF. Ao clicar em **Processar e indexar PDF**, o índice anterior é substituído, evitando acúmulo de documentos e embeddings.
-
-## Dependências previstas
-
-As principais dependências do projeto serão:
+Parâmetros atuais:
 
 ```text
-streamlit
-chromadb
-pymupdf
-python-dotenv
-google-genai
-groq
+Busca vetorial inicial: até 8 chunks candidatos
+Filtro de relevância: distância vetorial em relação ao melhor candidato
+Fator de proximidade: 1.25
+Margem máxima de distância: 0.03
+Contexto final: até 5 chunks enviados ao modelo
 ```
 
-As dependências devem ser instaladas dentro de um ambiente virtual `.venv`, para evitar conflitos com bibliotecas de outros projetos Python.
+O fluxo é:
 
-## Ambiente virtual
+1. Recuperar até 8 chunks candidatos no ChromaDB.
+2. Identificar o chunk com menor distância vetorial.
+3. Manter somente chunks próximos ao melhor candidato.
+4. Limitar o contexto final a no máximo 5 chunks.
 
-O projeto usa um ambiente virtual Python na pasta `.venv/`.
+Isso reduz ruído no prompt e evita enviar trechos pouco relevantes ao modelo.
 
-Essa pasta não deve ser enviada para o Git, pois contém arquivos locais da instalação. Por isso, ela deve estar no `.gitignore`.
+## Regras de Resposta
 
-Para criar o ambiente virtual:
+O modelo gerador recebe instruções para:
+
+- responder apenas com base no contexto;
+- dizer quando a informação não estiver no documento;
+- não inventar regras, prazos ou exceções;
+- não converter percentuais, prazos, cargas horárias ou quantidades sem equivalência explícita;
+- diferenciar regra geral de exceções e procedimentos especiais;
+- responder primeiro com a regra geral quando houver regra geral e caso especial;
+- citar fontes no formato `[Fonte N]`;
+- listar as fontes utilizadas ao final.
+
+## Como Executar
+
+Crie e ative o ambiente virtual:
 
 ```powershell
 python -m venv .venv
-```
-
-Para ativar no PowerShell:
-
-```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
-Se o PowerShell bloquear a ativação por política de execução, use:
+Se o PowerShell bloquear a ativação por política de execução:
 
 ```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\.venv\Scripts\Activate.ps1
 ```
 
-Com o ambiente virtual ativo, instale as dependências:
+Instale as dependências:
 
 ```powershell
 python -m pip install -r requirements.txt
 ```
 
-## Variáveis de ambiente
-
-As chaves de API devem ficar em um arquivo `.env`, evitando deixar dados sensíveis diretamente no código.
-
-Exemplo:
-
-```env
-GEMINI_API_KEY=sua_chave_do_gemini
-GROQ_API_KEY=sua_chave_da_groq
-```
-
-Essas variáveis serão carregadas pelo Python com `python-dotenv`.
-
-## Como executar
-
-1. Crie e ative o ambiente virtual:
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-```
-
-2. Instale as dependências dentro da `.venv`:
-
-```powershell
-python -m pip install -r requirements.txt
-```
-
-3. Crie o arquivo `.env` com base no `.env.example`:
+Crie o `.env` a partir do exemplo:
 
 ```powershell
 copy .env.example .env
 ```
 
-4. Preencha as chaves no arquivo `.env`:
+Preencha as chaves:
 
 ```env
 GEMINI_API_KEY=sua_chave_do_gemini
 GROQ_API_KEY=sua_chave_da_groq
 ```
 
-5. Execute a aplicação com a `.venv` ativa:
+Execute a aplicação:
 
 ```powershell
 streamlit run app.py
 ```
 
-6. Na interface, carregue o PDF e clique em **Processar e indexar PDF** antes da primeira pergunta.
+Depois, acesse a URL mostrada pelo Streamlit, normalmente:
 
-## Verificação do chunking
+```text
+http://localhost:8501
+```
 
-Para testar apenas a extração e divisão do PDF, sem usar Gemini, Groq ou ChromaDB:
+## Como Usar
 
-```bash
+1. Abra a aplicação Streamlit.
+2. Carregue um PDF na seção **Documento**.
+3. Clique em **Processar documento**.
+4. Aguarde a criação dos chunks e embeddings.
+5. Digite uma pergunta sobre o documento processado.
+6. Clique em **Consultar**.
+7. Leia a resposta e confira os trechos usados para fundamentá-la.
+
+Se o PDF já estiver salvo em **Arquivos enviados**, é possível selecioná-lo e clicar em **Processar arquivo salvo**.
+
+## Verificação do Chunking
+
+Para testar somente a extração e divisão do PDF, sem usar Gemini, Groq ou ChromaDB:
+
+```powershell
 python rag.py
 ```
 
 Também é possível informar outro PDF:
 
-```bash
+```powershell
 python rag.py caminho/do/documento.pdf
 ```
 
-Esse comando mostra todos os chunks no terminal e também gera o arquivo `debug_chunks.csv`.
+Esse comando imprime os chunks no terminal e gera `debug_chunks.csv`.
 
 O CSV contém:
 
@@ -407,63 +253,65 @@ O CSV contém:
 chunk, fonte, artigo, titulo, capitulo, pagina_inicio, pagina_fim, texto
 ```
 
-Esse arquivo serve para conferir se o chunking por artigos foi aplicado corretamente. Ele é um arquivo de debug e não precisa ser enviado ao Git.
+## Exemplos de Perguntas
 
-## Prompt de geração recomendado
+Exemplos úteis para testar com a Resolução CONEPE:
 
 ```text
-Responda a pergunta usando apenas as informações presentes no contexto.
-Se a informação não estiver no contexto, diga que não encontrou essa informação no documento.
-Não invente regras, prazos ou exceções.
-Cite as fontes utilizadas, incluindo artigo, capítulo e página quando disponíveis.
-
-CONTEXTO:
-{contexto_recuperado}
-
-PERGUNTA:
-{pergunta}
+Quantos dias deve ter o ano letivo?
 ```
 
-## Exemplos de perguntas para teste
+```text
+O que acontece se o estudante perder o prazo de renovação de matrícula e como isso se relaciona com o trancamento de matrícula?
+```
 
-- Quais são as formas de ingresso nos cursos de graduação da UNEMAT?
-- O que acontece se o estudante perder o prazo de renovação de matrícula?
-- Qual é a carga horária correspondente a um crédito?
-- Quando uma turma pode ser cancelada?
-- Quantos dias deve ter o ano letivo?
-- Como funciona o trancamento de matrícula?
-- O que é considerado reprovação por frequência?
+```text
+Quantos dias eu posso faltar?
+```
 
-## Critérios de avaliação atendidos
+```text
+Qual é o valor da mensalidade do curso?
+```
+
+A última pergunta é útil para verificar se o modelo evita inventar informações que não aparecem no documento.
+
+## Critérios de Avaliação Atendidos
 
 ### Documento processado e indexado
 
-O PDF será carregado, limpo, dividido em chunks e armazenado no ChromaDB.
+O PDF é carregado, extraído, dividido em chunks e armazenado no ChromaDB com embeddings.
 
 ### Chunking adequado implementado
 
-O chunking será estrutural, por seções, usando artigos como unidade principal. Essa abordagem é adequada para documentos normativos.
+O chunking usa artigos como unidade semântica principal, adequado para documentos normativos.
 
 ### Busca semântica funcionando
 
-A pergunta do usuário será convertida em embedding e comparada com os chunks armazenados no ChromaDB.
+A pergunta é convertida em embedding e comparada com os chunks armazenados no ChromaDB.
 
 ### Respostas fundamentadas no contexto
 
-O modelo gerador receberá somente os chunks recuperados como contexto e será instruído a responder apenas com base neles.
+O modelo recebe apenas os chunks selecionados como contexto e é instruído a responder somente com base neles.
 
 ### Citação de fontes
 
-Cada resposta deverá citar os artigos, capítulos e páginas usados como fonte.
+As respostas devem citar fontes no formato `[Fonte N]`, e a interface exibe os trechos usados para fundamentar a resposta.
 
 ### Interface frontend
 
-A aplicação terá uma interface web simples feita com Streamlit, permitindo ao usuário indexar o documento, enviar perguntas e visualizar respostas com fontes.
+A aplicação possui interface Streamlit para upload, processamento, consulta, visualização de respostas, fontes e dados técnicos.
+
+## Limitações
+
+- O chunking foi otimizado para documentos normativos estruturados por artigos.
+- PDFs muito diferentes, sem estrutura clara, podem exigir outra estratégia de chunking.
+- A seleção automática por distância vetorial reduz ruído, mas não substitui um reranker dedicado.
+- O modelo gerador pode variar a redação das respostas, mesmo seguindo o prompt.
+- Os arquivos enviados ficam no servidor da aplicação, não no computador do usuário, caso o app esteja hospedado em nuvem.
 
 ## Referências
 
 - Aula 07 - Introdução ao RAG.
 - ChromaDB: https://www.trychroma.com/
 - Gemini API - Embeddings: https://ai.google.dev/gemini-api/docs/embeddings
-- Gemini API - Pricing: https://ai.google.dev/gemini-api/docs/pricing
 - GroqCloud: https://console.groq.com/
