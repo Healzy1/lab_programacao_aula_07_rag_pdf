@@ -1,0 +1,6 @@
+streamlit
+chromadb
+pymupdf
+python-dotenv
+google-genai
+groq

@@ -1,0 +1,8 @@
+.env
+chroma_db/
+uploaded_docs/
+debug_chunks.csv
+__pycache__/
+*.pyc
+.streamlit/
+.venv/
